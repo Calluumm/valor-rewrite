@@ -2,6 +2,7 @@ import requests, logging, aiohttp, asyncio, os, time
 
 from io import BytesIO
 from requests.exceptions import RequestException
+from core.config import config
 
 
 DEFAULT_HEADERS = {
@@ -12,8 +13,11 @@ BUST_API_URL = "https://visage.surgeplay.com/bust/"
 
 
 
-async def request(url: str, headers: dict = None, return_type: str = "json"):
+async def request(url: str, headers: dict = None, return_type: str = "json", use_wynn_auth: bool = False):
     all_headers = {**DEFAULT_HEADERS, **(headers or {})}
+
+    if use_wynn_auth and config.WYNN_API_KEY:
+        all_headers["Authorization"] = f"Bearer {config.WYNN_API_KEY}"
 
     try:
         res = requests.get(url, headers=all_headers)
@@ -44,7 +48,7 @@ async def request_wynn_player(player: str, full_result: bool = False):
     if full_result:
         uri += "?fullResult"
 
-    stats = await request(uri)
+    stats = await request(uri, use_wynn_auth=True)
 
     if isinstance(stats, dict) and stats.get("code") == 300 and stats.get("error") == "MultipleObjectsReturned":
         objects = stats.get("objects") or {}
@@ -65,7 +69,7 @@ async def request_wynn_player(player: str, full_result: bool = False):
 
             logging.info(f"PLAYER STATS multiple objects for {player}; retrying by uuid {prefuuid}")
             retry_uri = f"https://api.wynncraft.com/v3/player/{prefuuid}?fullResult"
-            stats = await request(retry_uri)
+            stats = await request(retry_uri, use_wynn_auth=True)
 
     return stats
 
@@ -152,8 +156,10 @@ async def fetch_player_busts(names: list[str]):
     async with aiohttp.ClientSession() as session:
         for name in names:
             filename = f"/tmp/{name}_model.png"
+
             if os.path.exists(filename) and now - os.path.getmtime(filename) < 24 * 3600:
                 continue
+
             tasks.append(download_player_bust(session, name, filename))
 
         await asyncio.gather(*tasks)
