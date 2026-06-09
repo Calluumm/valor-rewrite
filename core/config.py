@@ -35,12 +35,12 @@ class Config:
     ANO_MEMBER_ROLES = {int(role) for role in json.loads(os.getenv("ANO_MEMBER_ROLES"))}
     ANO_MILITARY_ROLES = {int(role) for role in json.loads(os.getenv("ANO_MILITARY_ROLES"))}
 
-    # Lists of role IDs for high ranks, titans, chiefs in ANO
+    # Lists of role IDs for high ranks, titans, chiefs in ANO ignorable for others
     ANO_HIGH_RANK_ROLES = {int(role) for role in json.loads(os.getenv("ANO_HIGH_RANK_ROLES"))}
     ANO_TITAN_ROLES = {int(role) for role in json.loads(os.getenv("ANO_TITAN_ROLES"))}
     ANO_CHIEF_ROLES = {int(role) for role in json.loads(os.getenv("ANO_CHIEF_ROLES"))}
 
-    # Channel ID for Titan chat, parsed from JSON (usually a number or list)
+    # Channel ID for an ANO channel
     TITAN_CHAT_CHANNEL_ID = json.loads(os.getenv("TITAN_CHAT_CHANNEL_ID"))
     TERRITORY_TRACKER_CHANNEL_ID = json.loads(os.getenv("TERRITORY_TRACKER_CHANNEL_ID"))
     ANO_TERRITORY_TRACKER_CHANNEL_ID = json.loads(os.getenv("ANO_TERRITORY_TRACKER_CHANNEL_ID"))
